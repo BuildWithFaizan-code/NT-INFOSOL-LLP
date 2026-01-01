@@ -188,29 +188,42 @@ function App() {
     };
   }, [rowData, formData.discount, formData.add_less, formData.freight_amt, formData.gst_type, formData.cgst_percent, formData.sgst_percent, formData.igst_percent, formData.other_charges]);
 
-  // Column Definitions for Items Grid
+  // Column Definitions for Items Grid - Auto-sizing
   const columnDefs = useMemo(() => [
-    { headerName: "#", valueGetter: "node.rowIndex + 1", width: 50, pinned: 'left', headerClass: 'ag-header-cell-text-center', editable: false },
-    { field: 'item_code', headerName: 'Item Code', width: 100, editable: editMode !== 'view' },
-    { field: 'description', headerName: 'Description', width: 150, editable: editMode !== 'view' },
-    { field: 'merge_style', headerName: 'Merge No/...', width: 100, editable: editMode !== 'view' },
-    { field: 'shade', headerName: 'Shade', width: 80, editable: editMode !== 'view' },
-    { field: 'remark', headerName: 'Remark', width: 100, editable: editMode !== 'view' },
-    { field: 'department', headerName: 'Department', width: 120, editable: editMode !== 'view' },
-    { field: 'cost_center', headerName: 'Cost Center', width: 130, editable: editMode !== 'view' },
-    { field: 'uqc', headerName: 'UQC', width: 70, editable: editMode !== 'view' },
+    {
+      headerName: "#",
+      valueGetter: "node.rowIndex + 1",
+      width: 40,
+      maxWidth: 50,
+      pinned: 'left',
+      headerClass: 'ag-header-cell-text-center',
+      editable: false,
+      suppressSizeToFit: true
+    },
+    { field: 'item_code', headerName: 'Item Code', flex: 1, minWidth: 80, maxWidth: 120, editable: editMode !== 'view' },
+    { field: 'description', headerName: 'Description', flex: 2, minWidth: 120, editable: editMode !== 'view' },
+    { field: 'merge_style', headerName: 'Merge', flex: 1, minWidth: 80, maxWidth: 100, editable: editMode !== 'view' },
+    { field: 'shade', headerName: 'Shade', flex: 0.8, minWidth: 60, maxWidth: 80, editable: editMode !== 'view' },
+    { field: 'remark', headerName: 'Remark', flex: 1, minWidth: 80, maxWidth: 120, editable: editMode !== 'view' },
+    { field: 'department', headerName: 'Dept', flex: 1, minWidth: 90, maxWidth: 120, editable: editMode !== 'view' },
+    { field: 'cost_center', headerName: 'Cost Center', flex: 1.2, minWidth: 100, maxWidth: 140, editable: editMode !== 'view' },
+    { field: 'uqc', headerName: 'UQC', flex: 0.6, minWidth: 50, maxWidth: 70, editable: editMode !== 'view' },
     {
       field: 'pending_qty',
-      headerName: '₹Pend ...',
-      width: 80,
+      headerName: 'Pend',
+      flex: 0.7,
+      minWidth: 60,
+      maxWidth: 80,
       editable: editMode !== 'view',
       valueParser: params => parseFloat(params.newValue || 0),
       cellClass: 'ag-right-aligned-cell'
     },
     {
       field: 'grn_qty',
-      headerName: '₹GRN Q...',
-      width: 80,
+      headerName: 'GRN',
+      flex: 0.7,
+      minWidth: 60,
+      maxWidth: 80,
       editable: editMode !== 'view',
       valueParser: params => parseFloat(params.newValue || 0),
       cellClass: 'ag-right-aligned-cell'
@@ -218,7 +231,9 @@ function App() {
     {
       field: 'qty',
       headerName: 'Qty',
-      width: 80,
+      flex: 0.7,
+      minWidth: 60,
+      maxWidth: 80,
       editable: editMode !== 'view',
       valueParser: params => parseFloat(params.newValue || 0),
       cellClass: 'ag-right-aligned-cell',
@@ -233,7 +248,9 @@ function App() {
     {
       field: 'rate',
       headerName: 'Rate',
-      width: 90,
+      flex: 0.8,
+      minWidth: 70,
+      maxWidth: 90,
       editable: editMode !== 'view',
       valueParser: params => parseFloat(params.newValue || 0),
       cellClass: 'ag-right-aligned-cell',
@@ -248,16 +265,20 @@ function App() {
     {
       field: 'amount',
       headerName: 'Amount',
-      width: 100,
+      flex: 1,
+      minWidth: 80,
+      maxWidth: 110,
       editable: false,
       valueFormatter: p => p.value ? Number(p.value).toFixed(2) : '0.00',
       cellClass: 'ag-right-aligned-cell'
     },
     {
-      headerName: 'Action',
-      width: 60,
+      headerName: 'Act',
+      width: 50,
+      maxWidth: 50,
       pinned: 'right',
       editable: false,
+      suppressSizeToFit: true,
       cellRenderer: (params) => (
         <button
           onClick={() => {
@@ -267,7 +288,7 @@ function App() {
           className="text-red-600 hover:text-red-800 p-1"
           title="Delete Row"
         >
-          <Trash2 size={16} />
+          <Trash2 size={14} />
         </button>
       )
     }
