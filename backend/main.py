@@ -19,9 +19,20 @@ app = FastAPI()
 # Initialize database on startup
 @app.on_event("startup")
 def startup_event():
-    print("🚀 Starting application...")
-    init_db()
-    print("✅ Database initialized successfully!")
+    try:
+        print("=" * 50)
+        print("🚀 Starting application...")
+        print(f"DATABASE_URL configured: {os.getenv('DATABASE_URL', 'Not set')[:50]}...")
+        init_db()
+        print("✅ Database initialized successfully!")
+        print("=" * 50)
+    except Exception as e:
+        print("=" * 50)
+        print(f"❌ ERROR during startup: {e}")
+        import traceback
+        traceback.print_exc()
+        print("=" * 50)
+        # Don't raise - let app start anyway for debugging
 
 # CORS Configuration
 app.add_middleware(
