@@ -13,6 +13,7 @@ from pathlib import Path
 # Import database components
 from database import init_db, get_db, PurchaseOrderDB
 
+# Version: 1.0.1 - PostgreSQL Integration
 app = FastAPI()
 
 # Initialize database on startup
