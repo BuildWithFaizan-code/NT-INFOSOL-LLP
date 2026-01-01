@@ -122,6 +122,8 @@ ORDERS_FILE = "orders.json"
 
 def load_orders():
     if not os.path.exists(ORDERS_FILE):
+        # Initialize with empty array if file doesn't exist
+        save_orders([])
         return []
     try:
         with open(ORDERS_FILE, "r") as f:
@@ -132,6 +134,12 @@ def load_orders():
 def save_orders(orders):
     with open(ORDERS_FILE, "w") as f:
         json.dump(orders, f, indent=2)
+
+# Initialize orders file on startup
+if not os.path.exists(ORDERS_FILE):
+    print("📝 Initializing orders.json file...")
+    save_orders([])
+    print("✅ orders.json created successfully!")
 
 @app.get("/api/orders")
 def get_orders():
