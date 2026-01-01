@@ -1,15 +1,15 @@
 #!/bin/bash
-# Build script for Render
+# Build script for Render - Updated for Python + Node environment
 
-echo "Installing frontend dependencies..."
+echo "=== Installing Node.js dependencies ==="
 cd frontend
-npm install
+npm ci --only=production
 
-echo "Building frontend..."
+echo "=== Building React frontend ==="
 npm run build
 
-echo "Installing backend dependencies..."
+echo "=== Installing Python dependencies ==="
 cd ../backend
 pip install -r requirements.txt
 
-echo "Build complete!"
+echo "=== Build complete! ==="
