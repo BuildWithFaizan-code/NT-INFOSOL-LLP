@@ -1,20 +1,31 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime
+from sqlalchemy.orm import Session
 import json
 import os
 from pathlib import Path
 
+# Import database components
+from database import init_db, get_db, PurchaseOrderDB
+
 app = FastAPI()
+
+# Initialize database on startup
+@app.on_event("startup")
+def startup_event():
+    print("🚀 Starting application...")
+    init_db()
+    print("✅ Database initialized successfully!")
 
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your domain
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,32 +57,28 @@ class OrderItem(BaseModel):
 
 class PurchaseOrder(BaseModel):
     po_no: str
-    date: str  # Keeping as string for simplicity with frontend date pickers
+    date: str
     ord_mode: str = "CONSUMABLE"
     mode: str = "Direct"
-    store: str = "SURAT"
-    party_name: str
-    agent: str = "DIRECT"
-    reference: Optional[str] = ""
-    ref_date: Optional[str] = ""
-    currency: Optional[str] = ""
-    cr_days: int = 60
+    store: str = ""
+    party_name: str = ""
+    agent: str = ""
+    reference: str = ""
+    ref_date: str = ""
+    currency: str = ""
+    cr_days: int = 0
     del_days: int = 0
-    freight_type: str = "EXTRA"
+    freight_type: str = "PAID"
     is_import: bool = False
     status: str = "Open"
-    gstin: Optional[str] = ""
-    address: Optional[str] = ""
-    
-    # Footer
-    delivery_party: Optional[str] = ""
-    del_terms: str = "IMMEDIATELY"
-    pay_terms: str = "60 DAYS"
-    despatch_ins: Optional[str] = ""
-    special_note: Optional[str] = ""
-    remarks: Optional[str] = ""
-    
-    # Totals
+    gstin: str = ""
+    address: str = ""
+    delivery_party: str = ""
+    del_terms: str = ""
+    pay_terms: str = ""
+    despatch_ins: str = ""
+    special_note: str = ""
+    remarks: str = ""
     total_item: int = 0
     total_qty: float = 0.0
     gross_amount: float = 0.0
@@ -79,81 +86,92 @@ class PurchaseOrder(BaseModel):
     add_less: float = 0.0
     freight_amt: float = 0.0
     net_amount: float = 0.0
-    
-    items: List[OrderItem]
-    
-    # Audit trail and GRN tracking
-    updates: List[dict] = []
-    grn_records: List[dict] = []
-    
-    # GST fields
-    gst_type: Optional[str] = "intra-state"
-    cgst_percent: Optional[float] = 9.0
-    sgst_percent: Optional[float] = 9.0
-    igst_percent: Optional[float] = 18.0
-    other_charges: Optional[float] = 0.0
-    terms_conditions_text: Optional[str] = ""
+    items: List[OrderItem] = []
+    updates: Optional[List[dict]] = []
+    grn_records: Optional[List[dict]] = []
+    gst_type: str = "intra-state"
+    cgst_percent: float = 0.0
+    sgst_percent: float = 0.0
+    igst_percent: float = 0.0
+    other_charges: float = 0.0
+    terms_conditions_text: str = ""
+
 
 @app.get("/")
-def read_root():
-    """Serve the React app"""
-    if FRONTEND_DIST.exists():
-        return FileResponse(FRONTEND_DIST / "index.html")
-    return {"status": "ok", "message": "Purchase Order API Running"}
+async def root():
+    return {"message": "Purchase Order API", "status": "running"}
 
-# Catch-all route to serve React app for client-side routing
+
+# Serve React app for all other routes
 @app.get("/{full_path:path}")
 async def serve_react_app(full_path: str):
-    """Serve React app for all non-API routes"""
-    # If it's an API route, let it pass through
-    if full_path.startswith("api/"):
-        raise HTTPException(status_code=404, detail="API endpoint not found")
-    
-    # Serve the React app
     if FRONTEND_DIST.exists():
         return FileResponse(FRONTEND_DIST / "index.html")
     return {"error": "Frontend not built"}
 
-import json
-import os
-
-# File to store orders
-ORDERS_FILE = "orders.json"
-
-def load_orders():
-    if not os.path.exists(ORDERS_FILE):
-        # Initialize with empty array if file doesn't exist
-        save_orders([])
-        return []
-    try:
-        with open(ORDERS_FILE, "r") as f:
-            return json.load(f)
-    except Exception:
-        return []
-
-def save_orders(orders):
-    with open(ORDERS_FILE, "w") as f:
-        json.dump(orders, f, indent=2)
-
-# Initialize orders file on startup
-if not os.path.exists(ORDERS_FILE):
-    print("📝 Initializing orders.json file...")
-    save_orders([])
-    print("✅ orders.json created successfully!")
 
 @app.get("/api/orders")
-def get_orders():
-    return load_orders()
+def get_orders(db: Session = Depends(get_db)):
+    """Get all purchase orders from database"""
+    try:
+        orders = db.query(PurchaseOrderDB).all()
+        return [
+            {
+                "po_no": order.po_no,
+                "date": order.date,
+                "ord_mode": order.ord_mode,
+                "mode": order.mode,
+                "store": order.store,
+                "party_name": order.party_name,
+                "agent": order.agent,
+                "reference": order.reference,
+                "ref_date": order.ref_date,
+                "currency": order.currency,
+                "cr_days": order.cr_days,
+                "del_days": order.del_days,
+                "freight_type": order.freight_type,
+                "is_import": order.is_import,
+                "status": order.status,
+                "gstin": order.gstin,
+                "address": order.address,
+                "delivery_party": order.delivery_party,
+                "del_terms": order.del_terms,
+                "pay_terms": order.pay_terms,
+                "despatch_ins": order.despatch_ins,
+                "special_note": order.special_note,
+                "remarks": order.remarks,
+                "total_item": order.total_item,
+                "total_qty": order.total_qty,
+                "gross_amount": order.gross_amount,
+                "discount": order.discount,
+                "add_less": order.add_less,
+                "freight_amt": order.freight_amt,
+                "net_amount": order.net_amount,
+                "items": order.items,
+                "updates": order.updates,
+                "grn_records": order.grn_records,
+                "gst_type": order.gst_type,
+                "cgst_percent": order.cgst_percent,
+                "sgst_percent": order.sgst_percent,
+                "igst_percent": order.igst_percent,
+                "other_charges": order.other_charges,
+                "terms_conditions_text": order.terms_conditions_text,
+            }
+            for order in orders
+        ]
+    except Exception as e:
+        print(f"❌ Error fetching orders: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/orders")
-async def create_order(order: PurchaseOrder):
+async def create_order(order: PurchaseOrder, db: Session = Depends(get_db)):
     """Create a new purchase order"""
-    from datetime import datetime
     try:
-        current_orders = load_orders()
+        existing = db.query(PurchaseOrderDB).filter(PurchaseOrderDB.po_no == order.po_no).first()
+        if existing:
+            raise HTTPException(status_code=400, detail=f"PO {order.po_no} already exists")
         
-        # Add creation timestamp to updates
         order_dict = order.dict()
         order_dict['updates'] = [{
             "timestamp": datetime.now().isoformat(),
@@ -163,77 +181,72 @@ async def create_order(order: PurchaseOrder):
         }]
         order_dict['grn_records'] = []
         
-        # Append the new order to the list
-        current_orders.append(order_dict)
-        save_orders(current_orders)
+        db_order = PurchaseOrderDB(**order_dict)
+        db.add(db_order)
+        db.commit()
+        db.refresh(db_order)
         
-        return {
-            "confirmed_po": order.po_no,
-            "message": "Order created successfully"
-        }
-    except Exception as e:
-        print(f"Error creating order: {str(e)}")
-        print(f"Error type: {type(e)}")
-        import traceback
-        traceback.print_exc()
+        print(f"✅ Created PO: {order.po_no}")
+        return {"confirmed_po": order.po_no, "message": "Order created successfully"}
+    except HTTPException:
         raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error creating order: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.put("/api/orders")
+async def update_order(order: PurchaseOrder, db: Session = Depends(get_db)):
+    """Update an existing purchase order"""
+    try:
+        db_order = db.query(PurchaseOrderDB).filter(PurchaseOrderDB.po_no == order.po_no).first()
+        if not db_order:
+            raise HTTPException(status_code=404, detail=f"PO {order.po_no} not found")
+        
+        order_dict = order.dict()
+        for key, value in order_dict.items():
+            if key != 'updates' and hasattr(db_order, key):
+                setattr(db_order, key, value)
+        
+        current_updates = db_order.updates or []
+        current_updates.append({
+            "timestamp": datetime.now().isoformat(),
+            "action": "updated",
+            "changes": {},
+            "user": "System"
+        })
+        db_order.updates = current_updates
+        
+        db.commit()
+        db.refresh(db_order)
+        
+        print(f"✅ Updated PO: {order.po_no}")
+        return {"confirmed_po": order.po_no, "message": "Order updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error updating order: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.delete("/api/orders")
-async def delete_order(po_no: str):
-    """Delete a purchase order by PO number (query parameter)"""
-    orders = load_orders()
-    
-    # Filter out the order with matching po_no
-    filtered_orders = [o for o in orders if o.get("po_no") != po_no]
-    
-    if len(filtered_orders) == len(orders):
-        return {"success": False, "message": f"Order {po_no} not found"}
-    
-    save_orders(filtered_orders)
-    return {"success": True, "message": f"Order {po_no} deleted successfully"}
-
-@app.put("/api/orders")
-async def update_order(order: PurchaseOrder):
-    """Update an existing purchase order"""
-    from datetime import datetime
-    orders = load_orders()
-    
-    # Find and update the order with matching po_no
-    updated = False
-    for i, existing_order in enumerate(orders):
-        if existing_order.get("po_no") == order.po_no:
-            # Track changes
-            changes = {}
-            new_order_dict = order.dict()
-            
-            # Compare key fields for changes
-            for key in ['party_name', 'discount', 'add_less', 'freight_amt', 'net_amount']:
-                if existing_order.get(key) != new_order_dict.get(key):
-                    changes[key] = {
-                        "old": existing_order.get(key),
-                        "new": new_order_dict.get(key)
-                    }
-            
-            # Preserve existing updates and add new one
-            existing_updates = existing_order.get('updates', [])
-            existing_updates.append({
-                "timestamp": datetime.now().isoformat(),
-                "action": "updated",
-                "changes": changes,
-                "user": "System"
-            })
-            new_order_dict['updates'] = existing_updates
-            
-            # Preserve existing GRN records
-            new_order_dict['grn_records'] = existing_order.get('grn_records', [])
-            
-            orders[i] = new_order_dict
-            updated = True
-            break
-    
-    if not updated:
-        raise HTTPException(status_code=404, detail=f"Order {order.po_no} not found")
-    
-    save_orders(orders)
-    return {"confirmed_po": order.po_no, "message": "Order updated successfully"}
+async def delete_order(po_no: str, db: Session = Depends(get_db)):
+    """Delete a purchase order"""
+    try:
+        db_order = db.query(PurchaseOrderDB).filter(PurchaseOrderDB.po_no == po_no).first()
+        if not db_order:
+            raise HTTPException(status_code=404, detail=f"PO {po_no} not found")
+        
+        db.delete(db_order)
+        db.commit()
+        
+        print(f"✅ Deleted PO: {po_no}")
+        return {"message": f"Order {po_no} deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error deleting order: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
