@@ -118,19 +118,19 @@ import json
 import os
 
 # File to store orders
-DB_FILE = "orders.json"
+ORDERS_FILE = "orders.json"
 
 def load_orders():
-    if not os.path.exists(DB_FILE):
+    if not os.path.exists(ORDERS_FILE):
         return []
     try:
-        with open(DB_FILE, "r") as f:
+        with open(ORDERS_FILE, "r") as f:
             return json.load(f)
     except Exception:
         return []
 
 def save_orders(orders):
-    with open(DB_FILE, "w") as f:
+    with open(ORDERS_FILE, "w") as f:
         json.dump(orders, f, indent=2)
 
 @app.get("/api/orders")
