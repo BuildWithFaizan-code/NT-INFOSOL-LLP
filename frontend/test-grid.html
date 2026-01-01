@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AG Grid Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
+    <style>
+        body { margin: 20px; font-family: Arial; }
+        #myGrid { height: 500px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h2>AG Grid Test - Fetching from Backend</h2>
+    <button onclick="loadData()">Load Data</button>
+    <div id="status"></div>
+    <div id="myGrid" class="ag-theme-alpine"></div>
+
+    <script>
+        const columnDefs = [
+            { field: 'po_no', headerName: 'PO No' },
+            { field: 'date', headerName: 'Date' },
+            { field: 'party_name', headerName: 'Party Name' },
+            { field: 'net_amount', headerName: 'Net Amount' },
+            { field: 'status', headerName: 'Status' }
+        ];
+
+        const gridOptions = {
+            columnDefs: columnDefs,
+            rowData: [],
+            defaultColDef: {
+                resizable: true,
+                sortable: true,
+                filter: true
+            }
+        };
+
+        const gridDiv = document.querySelector('#myGrid');
+        const grid = agGrid.createGrid(gridDiv, gridOptions);
+
+        async function loadData() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/orders');
+                const data = await response.json();
+                
+                document.getElementById('status').innerHTML = 
+                    `<p>Loaded ${data.length} records</p>
+                     <pre>${JSON.stringify(data[0], null, 2)}</pre>`;
+                
+                console.log("Data:", data);
+                gridOptions.api.setGridOption('rowData', data);
+            } catch (err) {
+                document.getElementById('status').innerHTML = 
+                    `<p style="color: red">Error: ${err.message}</p>`;
+                console.error(err);
+            }
+        }
+
+        // Auto-load on page load
+        loadData();
+    </script>
+</body>
+</html>

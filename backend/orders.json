@@ -1,0 +1,117 @@
+[
+  {
+    "po_no": "PRCH/000001/26",
+    "date": "2026-01-01",
+    "ord_mode": "REGULAR",
+    "mode": "Direct",
+    "store": "SURAT",
+    "party_name": "ABC ENTERPRISE",
+    "agent": "DIRECT",
+    "reference": "",
+    "ref_date": "2026-01-02",
+    "currency": "",
+    "cr_days": 60,
+    "del_days": 5,
+    "freight_type": "PAID",
+    "is_import": true,
+    "status": "Open",
+    "gstin": "GSTIN22255588999",
+    "address": "123 , Dumas Rd, New Magdalla, Road,  Surat, Gujarat - 395007",
+    "delivery_party": "Pigeon Textiles , 1246, Hazira Road, Surat",
+    "del_terms": "IMMEDIATELY",
+    "pay_terms": "60 DAYS",
+    "despatch_ins": "100 Pcs Minimum",
+    "special_note": "NO",
+    "remarks": "Xyz samples",
+    "total_item": 3,
+    "total_qty": 3180.0,
+    "gross_amount": 6310480.0,
+    "discount": 3.0,
+    "add_less": -0.6,
+    "freight_amt": 1700.0,
+    "net_amount": 6122865.0,
+    "items": [
+      {
+        "item_code": "20221",
+        "description": "",
+        "merge_style": "",
+        "shade": "",
+        "remark": "",
+        "department": "REGULAR",
+        "cost_center": "DIAPER DIVISION",
+        "uqc": "KGS",
+        "pending_qty": 0.0,
+        "grn_qty": 0.0,
+        "qty": 586.0,
+        "rate": 1700.0,
+        "amount": 996200.0
+      },
+      {
+        "item_code": "20222",
+        "description": "",
+        "merge_style": "",
+        "shade": "",
+        "remark": "",
+        "department": "REGULAR",
+        "cost_center": "DIAPER DIVISION",
+        "uqc": "KGS",
+        "pending_qty": 0.0,
+        "grn_qty": 0.0,
+        "qty": 1728.0,
+        "rate": 1822.5,
+        "amount": 3149280.0
+      },
+      {
+        "item_code": "20223",
+        "description": "",
+        "merge_style": "",
+        "shade": "",
+        "remark": "",
+        "department": "REGULAR",
+        "cost_center": "DIAPER DIVISION",
+        "uqc": "KGS",
+        "pending_qty": 0.0,
+        "grn_qty": 0.0,
+        "qty": 866.0,
+        "rate": 2500.0,
+        "amount": 2165000.0
+      }
+    ],
+    "updates": [
+      {
+        "timestamp": "2026-01-01T09:51:58.838788",
+        "action": "created",
+        "changes": {},
+        "user": "System"
+      },
+      {
+        "timestamp": "2026-01-01T10:23:28.201183",
+        "action": "updated",
+        "changes": {},
+        "user": "System"
+      },
+      {
+        "timestamp": "2026-01-01T10:25:55.375671",
+        "action": "updated",
+        "changes": {
+          "add_less": {
+            "old": 0.12,
+            "new": -0.6
+          },
+          "net_amount": {
+            "old": 6428924.0,
+            "new": 6122865.0
+          }
+        },
+        "user": "System"
+      }
+    ],
+    "grn_records": [],
+    "gst_type": "intra-state",
+    "cgst_percent": 0.0,
+    "sgst_percent": 0.0,
+    "igst_percent": 0.0,
+    "other_charges": 0.0,
+    "terms_conditions_text": ""
+  }
+]
