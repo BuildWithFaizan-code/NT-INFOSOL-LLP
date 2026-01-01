@@ -114,14 +114,6 @@ async def root():
     return {"message": "Purchase Order API", "status": "running"}
 
 
-# Serve React app for all other routes
-@app.get("/{full_path:path}")
-async def serve_react_app(full_path: str):
-    if FRONTEND_DIST.exists():
-        return FileResponse(FRONTEND_DIST / "index.html")
-    return {"error": "Frontend not built"}
-
-
 @app.get("/api/orders")
 def get_orders(db: Session = Depends(get_db)):
     """Get all purchase orders from database"""
@@ -262,3 +254,13 @@ async def delete_order(po_no: str, db: Session = Depends(get_db)):
         db.rollback()
         print(f"❌ Error deleting order: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# Serve React app for all other routes (MUST BE LAST!)
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    """Catch-all route to serve React frontend for non-API routes"""
+    if FRONTEND_DIST.exists():
+        return FileResponse(FRONTEND_DIST / "index.html")
+    return {"error": "Frontend not built"}
+
