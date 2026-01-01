@@ -4,6 +4,7 @@ import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import axios from 'axios';
+import API_URL from './config';
 import { Trash2, Save, Plus, FileText, X, Printer, Edit, RefreshCw, Download, History, Package } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -80,7 +81,7 @@ function App() {
   // Fetch orders from backend
   const fetchOrders = useCallback(async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/api/orders');
+      const res = await axios.get(`${API_URL}/api/orders`);
       console.log("=== FETCH DEBUG ===");
       console.log("Response data:", res.data);
       console.log("Is Array?", Array.isArray(res.data));
@@ -339,8 +340,8 @@ function App() {
       let response;
       if (editMode === 'new') {
         // Create new PO
-        response = await axios.post('http://127.0.0.1:8000/api/orders', finalPayload);
-        alert(`Success! Order created. PO: ${response.data.confirmed_po}`);
+        response = await axios.post(`${API_URL}/api/orders`, finalPayload);
+        alert(`Success! Order created.PO: ${response.data.confirmed_po} `);
         setCurrentPONo(response.data.confirmed_po);
         setEditMode('view');
       } else if (editMode === 'edit') {
@@ -350,8 +351,8 @@ function App() {
           po_no: currentPONo // Force the original PO number
         };
         console.log("Update Payload with forced PO:", updatePayload);
-        response = await axios.put('http://127.0.0.1:8000/api/orders', updatePayload);
-        alert(`Success! Order updated. PO: ${response.data.confirmed_po}`);
+        response = await axios.put(`${API_URL}/api/orders`, updatePayload);
+        alert(`Success! Order updated.PO: ${response.data.confirmed_po} `);
         setEditMode('view');
         setOriginalData(null);
       }
@@ -420,7 +421,7 @@ function App() {
 
     try {
       console.log("Attempting to delete PO:", po_no);
-      const url = `http://127.0.0.1:8000/api/orders?po_no=${encodeURIComponent(po_no)}`;
+      const url = `${API_URL}/api/orders?po_no=${encodeURIComponent(po_no)}`;
       console.log("DELETE request URL:", url);
 
       const response = await axios.delete(url);
@@ -431,7 +432,7 @@ function App() {
         await fetchOrders();
         setViewMode('list');
       } else {
-        alert(`Failed to delete: ${response.data.message}`);
+        alert(`Failed to delete: ${response.data.message} `);
       }
     } catch (error) {
       console.error("Delete Error Details:", {
@@ -440,7 +441,7 @@ function App() {
         status: error.response?.status,
         url: error.config?.url
       });
-      alert(`Failed to delete order. Error: ${error.response?.data?.detail || error.message}`);
+      alert(`Failed to delete order.Error: ${error.response?.data?.detail || error.message} `);
     }
   }, [fetchOrders]);
 
@@ -550,31 +551,31 @@ function App() {
     const printWindow = window.open('', '_blank');
 
     const printContent = `
-      <!DOCTYPE html>
-      <html>
+  < !DOCTYPE html >
+    <html>
       <head>
         <title>Purchase Order - ${formData.po_no || 'New'}</title>
         <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
-          .header h1 { font-size: 24px; margin-bottom: 8px; }
-          .header h3 { font-size: 11px; font-weight: normal; margin-top: 0; margin-bottom: 10px; color: #555; line-height: 1.4; }
-          .header h2 { font-size: 18px; color: #666; margin-top: 8px; }
-          .po-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 12px; }
-          .po-details div { padding: 5px; }
-          .po-details strong { display: inline-block; width: 120px; }
-          .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
-          .items-table th, .items-table td { border: 1px solid #000; padding: 5px; text-align: left; }
-          .items-table th { background-color: #f0f0f0; font-weight: bold; }
-          .items-table td.number { text-align: right; }
-          .totals { margin-left: auto; width: 300px; font-size: 12px; }
-          .totals div { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #ddd; }
-          .totals .net-amount { font-weight: bold; font-size: 14px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-          .footer { margin-top: 40px; font-size: 11px; }
-          .signature { margin-top: 60px; display: flex; justify-content: space-between; }
-          .signature div { text-align: center; }
-          @media print { body { padding: 10px; } }
+          * {margin: 0; padding: 0; box-sizing: border-box; }
+          body {font - family: Arial, sans-serif; padding: 20px; }
+          .header {text - align: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+          .header h1 {font - size: 24px; margin-bottom: 8px; }
+          .header h3 {font - size: 11px; font-weight: normal; margin-top: 0; margin-bottom: 10px; color: #555; line-height: 1.4; }
+          .header h2 {font - size: 18px; color: #666; margin-top: 8px; }
+          .po-details {display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 12px; }
+          .po-details div {padding: 5px; }
+          .po-details strong {display: inline-block; width: 120px; }
+          .items-table {width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
+          .items-table th, .items-table td {border: 1px solid #000; padding: 5px; text-align: left; }
+          .items-table th {background - color: #f0f0f0; font-weight: bold; }
+          .items-table td.number {text - align: right; }
+          .totals {margin - left: auto; width: 300px; font-size: 12px; }
+          .totals div {display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #ddd; }
+          .totals .net-amount {font - weight: bold; font-size: 14px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
+          .footer {margin - top: 40px; font-size: 11px; }
+          .signature {margin - top: 60px; display: flex; justify-content: space-between; }
+          .signature div {text - align: center; }
+          @media print {body {padding: 10px; } }
         </style>
       </head>
       <body>
@@ -583,7 +584,7 @@ function App() {
           <h3 style="font-size: 12px; font-weight: normal; margin-top: 5px; color: #333;">A-801, Swastik Universal, Beside Valentine Multiplex, Piplod-Dumas Road, Surat-395007</h3>
           <h2>PURCHASE ORDER</h2>
         </div>
-        
+
         <div class="po-details">
           <div><strong>PO No:</strong> ${formData.po_no || 'N/A'}</div>
           <div><strong>Date:</strong> ${formData.date || 'N/A'}</div>
@@ -596,7 +597,7 @@ function App() {
           <div><strong>Payment Terms:</strong> ${formData.pay_terms || 'N/A'}</div>
           <div><strong>Delivery Terms:</strong> ${formData.del_terms || 'N/A'}</div>
         </div>
-        
+
         <table class="items-table">
           <thead>
             <tr>
@@ -625,7 +626,7 @@ function App() {
             `).join('')}
           </tbody>
         </table>
-        
+
         <div class="totals">
           <div><span>Gross Amount:</span><span>₹${totals.grossAmount}</span></div>
           <div><span>Discount (${formData.discount || 0}%):</span><span>₹${totals.discountAmount}</span></div>
@@ -633,12 +634,12 @@ function App() {
           <div><span>Freight:</span><span>₹${totals.freight}</span></div>
           <div class="net-amount"><span>Net Amount:</span><span>₹${totals.netAmount}</span></div>
         </div>
-        
+
         <div class="footer">
           <p><strong>Remarks:</strong> ${formData.remarks || 'N/A'}</p>
           <p><strong>Special Note:</strong> ${formData.special_note || 'N/A'}</p>
         </div>
-        
+
         <div class="signature">
           <div>
             <p>_____________________</p>
@@ -650,8 +651,8 @@ function App() {
           </div>
         </div>
       </body>
-      </html>
-    `;
+    </html>
+`;
 
     printWindow.document.write(printContent);
     printWindow.document.close();
@@ -700,7 +701,7 @@ function App() {
                   { field: 'po_no', headerName: 'PO No', sortable: true, filter: true },
                   { field: 'date', headerName: 'Date', sortable: true, filter: true },
                   { field: 'party_name', headerName: 'Party Name', sortable: true, filter: true, width: 250 },
-                  { field: 'net_amount', headerName: 'Net Amount', sortable: true, filter: true, valueFormatter: p => `₹${p.value}` },
+                  { field: 'net_amount', headerName: 'Net Amount', sortable: true, filter: true, valueFormatter: p => `₹${p.value} ` },
                   { field: 'status', headerName: 'Status' },
                   {
                     headerName: 'Action',
@@ -919,7 +920,7 @@ function App() {
                   <input name="discount" value={formData.discount} onChange={handleInputChange} disabled={isReadOnly} className="desktop-input text-right h-5" type="number" step="0.01" placeholder="%" />
                 </div>
                 <div className="col-span-2">
-                  <input value={`-₹${totals.discountAmount}`} readOnly className="desktop-input text-right bg-gray-100 text-red-600 font-semibold h-5 text-[9px]" title="Calculated discount amount" />
+                  <input value={`-₹${totals.discountAmount} `} readOnly className="desktop-input text-right bg-gray-100 text-red-600 font-semibold h-5 text-[9px]" title="Calculated discount amount" />
                 </div>
 
                 {/* Subtotal */}
