@@ -551,107 +551,287 @@ function App() {
     const printWindow = window.open('', '_blank');
 
     const printContent = `
-  < !DOCTYPE html >
-    <html>
-      <head>
-        <title>Purchase Order - ${formData.po_no || 'New'}</title>
-        <style>
-          * {margin: 0; padding: 0; box-sizing: border-box; }
-          body {font - family: Arial, sans-serif; padding: 20px; }
-          .header {text - align: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; }
-          .header h1 {font - size: 24px; margin-bottom: 8px; }
-          .header h3 {font - size: 11px; font-weight: normal; margin-top: 0; margin-bottom: 10px; color: #555; line-height: 1.4; }
-          .header h2 {font - size: 18px; color: #666; margin-top: 8px; }
-          .po-details {display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 12px; }
-          .po-details div {padding: 5px; }
-          .po-details strong {display: inline-block; width: 120px; }
-          .items-table {width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
-          .items-table th, .items-table td {border: 1px solid #000; padding: 5px; text-align: left; }
-          .items-table th {background - color: #f0f0f0; font-weight: bold; }
-          .items-table td.number {text - align: right; }
-          .totals {margin - left: auto; width: 300px; font-size: 12px; }
-          .totals div {display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #ddd; }
-          .totals .net-amount {font - weight: bold; font-size: 14px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-          .footer {margin - top: 40px; font-size: 11px; }
-          .signature {margin - top: 60px; display: flex; justify-content: space-between; }
-          .signature div {text - align: center; }
-          @media print {body {padding: 10px; } }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>NT INFOSOL LLP</h1>
-          <h3 style="font-size: 12px; font-weight: normal; margin-top: 5px; color: #333;">A-801, Swastik Universal, Beside Valentine Multiplex, Piplod-Dumas Road, Surat-395007</h3>
-          <h2>PURCHASE ORDER</h2>
-        </div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Purchase Order - ${formData.po_no || 'New'}</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 15mm 10mm;
+      }
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: Arial, sans-serif;
+        background: white;
+        color: #000;
+      }
+      
+      .print-container {
+        max-width: 190mm;
+        margin: 0 auto;
+        padding: 10mm;
+        background: white;
+      }
+      
+      /* Company Header */
+      .header h1 {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 4px;
+        letter-spacing: 2px;
+        color: #000;
+      }
+      
+      .company-address {
+        font-size: 10px;
+        text-align: center;
+        margin-bottom: 8px;
+        color: #333;
+      }
+      
+      .header h2 {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        margin: 12px 0;
+        padding-bottom: 6px;
+        border-bottom: 2px solid #000;
+      }
+      
+      /* Info Grid */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-size: 11px;
+      }
+      
+      .info-row {
+        display: flex;
+        padding: 3px 0;
+      }
+      
+      .info-label {
+        font-weight: 600;
+        min-width: 120px;
+      }
+      
+      .info-value {
+        flex: 1;
+      }
+      
+      /* Table Styling */
+      .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 10px;
+      }
+      
+      .items-table th {
+        background-color: #f3f4f6;
+        border: 1px solid #000;
+        padding: 6px 4px;
+        text-align: center;
+        font-weight: 600;
+      }
+      
+      .items-table td {
+        border: 1px solid #000;
+        padding: 4px;
+        text-align: left;
+      }
+      
+      .items-table td.text-right {
+        text-align: right;
+      }
+      
+      .items-table td.text-center {
+        text-align: center;
+      }
+      
+      /* Summary Section */
+      .summary-section {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 20px;
+      }
+      
+      .summary-left {
+        font-size: 10px;
+      }
+      
+      .summary-right {
+        min-width: 200px;
+      }
+      
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 0;
+        font-size: 11px;
+        border-bottom: 1px solid #ddd;
+      }
+      
+      .summary-row.total {
+        font-weight: bold;
+        border-top: 2px solid #000;
+        border-bottom: 2px solid #000;
+        padding-top: 6px;
+        margin-top: 4px;
+      }
+      
+      /* Signature Section */
+      .signature-section {
+        margin-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+      }
+      
+      .signature-box {
+        text-align: center;
+        min-width: 150px;
+      }
+      
+      .signature-line {
+        border-top: 1px solid #000;
+        margin-top: 50px;
+        padding-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="print-container">
+      <div class="header">
+        <h1>NT INFOSOL LLP</h1>
+        <p class="company-address">A-801, Swastik Universal, Beside Valentine Multiplex, Piplod-Dumas Road, Surat-395007</p>
+        <h2>PURCHASE ORDER</h2>
+      </div>
 
-        <div class="po-details">
-          <div><strong>PO No:</strong> ${formData.po_no || 'N/A'}</div>
-          <div><strong>Date:</strong> ${formData.date || 'N/A'}</div>
-          <div><strong>Vendor/Supplier:</strong> ${formData.party_name || 'N/A'}</div>
-          <div><strong>Store:</strong> ${formData.store || 'N/A'}</div>
-          <div><strong>Mode:</strong> ${formData.mode || 'N/A'}</div>
-          <div><strong>Agent:</strong> ${formData.agent || 'N/A'}</div>
-          <div><strong>Address:</strong> ${formData.address || 'N/A'}</div>
-          <div><strong>GSTIN:</strong> ${formData.gstin || 'N/A'}</div>
-          <div><strong>Payment Terms:</strong> ${formData.pay_terms || 'N/A'}</div>
-          <div><strong>Delivery Terms:</strong> ${formData.del_terms || 'N/A'}</div>
+      <div class="info-grid">
+        <div class="info-row">
+          <span class="info-label">PO No:</span>
+          <span class="info-value">${formData.po_no || 'N/A'}</span>
         </div>
+        <div class="info-row">
+          <span class="info-label">Date:</span>
+          <span class="info-value">${formData.date || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Vendor/Supplier:</span>
+          <span class="info-value">${formData.party_name || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Store:</span>
+          <span class="info-value">${formData.store || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Mode:</span>
+          <span class="info-value">${formData.mode || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Agent:</span>
+          <span class="info-value">${formData.agent || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Address:</span>
+          <span class="info-value">${formData.address || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">GSTIN:</span>
+          <span class="info-value">${formData.gstin || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Payment Terms:</span>
+          <span class="info-value">${formData.pay_terms || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Delivery Terms:</span>
+          <span class="info-value">${formData.del_terms || 'N/A'}</span>
+        </div>
+      </div>
 
-        <table class="items-table">
-          <thead>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;">#</th>
+            <th style="width: 80px;">Item Code</th>
+            <th>Description</th>
+            <th style="width: 70px;">Dept</th>
+            <th style="width: 50px;">UQC</th>
+            <th style="width: 60px;">Qty</th>
+            <th style="width: 70px;">Rate</th>
+            <th style="width: 80px;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowData.map((item, index) => `
             <tr>
-              <th>#</th>
-              <th>Item Code</th>
-              <th>Description</th>
-              <th>Dept</th>
-              <th>UQC</th>
-              <th>Qty</th>
-              <th>Rate</th>
-              <th>Amount</th>
+              <td class="text-center">${index + 1}</td>
+              <td>${item.item_code || ''}</td>
+              <td>${item.description || ''}</td>
+              <td class="text-center">${item.department || ''}</td>
+              <td class="text-center">${item.uqc || ''}</td>
+              <td class="text-right">${Number(item.qty || 0).toFixed(2)}</td>
+              <td class="text-right">${Number(item.rate || 0).toFixed(2)}</td>
+              <td class="text-right">${Number(item.amount || 0).toFixed(2)}</td>
             </tr>
-          </thead>
-          <tbody>
-            ${rowData.map((item, index) => `
-              <tr>
-                <td>${index + 1}</td>
-                <td>${item.item_code || ''}</td>
-                <td>${item.description || ''}</td>
-                <td>${item.department || ''}</td>
-                <td>${item.uqc || ''}</td>
-                <td class="number">${Number(item.qty || 0).toFixed(3)}</td>
-                <td class="number">${Number(item.rate || 0).toFixed(2)}</td>
-                <td class="number">${Number(item.amount || 0).toFixed(2)}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+          `).join('')}
+        </tbody>
+      </table>
 
-        <div class="totals">
-          <div><span>Gross Amount:</span><span>₹${totals.grossAmount}</span></div>
-          <div><span>Discount (${formData.discount || 0}%):</span><span>₹${totals.discountAmount}</span></div>
-          <div><span>Add/Less:</span><span>₹${totals.addLess}</span></div>
-          <div><span>Freight:</span><span>₹${totals.freight}</span></div>
-          <div class="net-amount"><span>Net Amount:</span><span>₹${totals.netAmount}</span></div>
-        </div>
-
-        <div class="footer">
+      <div class="summary-section">
+        <div class="summary-left">
           <p><strong>Remarks:</strong> ${formData.remarks || 'N/A'}</p>
-          <p><strong>Special Note:</strong> ${formData.special_note || 'N/A'}</p>
+          <p style="margin-top: 6px;"><strong>Special Note:</strong> ${formData.special_note || 'N/A'}</p>
         </div>
+        <div class="summary-right">
+          <div class="summary-row">
+            <span>Gross Amount:</span>
+            <span>₹${totals.grossAmount}</span>
+          </div>
+          <div class="summary-row">
+            <span>Discount (${formData.discount || 0}%):</span>
+            <span>₹${totals.discountAmount}</span>
+          </div>
+          <div class="summary-row">
+            <span>Add/Less:</span>
+            <span>₹${totals.addLess}</span>
+          </div>
+          <div class="summary-row">
+            <span>Freight:</span>
+            <span>₹${totals.freight}</span>
+          </div>
+          <div class="summary-row total">
+            <span>Net Amount:</span>
+            <span>₹${totals.netAmount}</span>
+          </div>
+        </div>
+      </div>
 
-        <div class="signature">
-          <div>
-            <p>_____________________</p>
-            <p>Prepared By</p>
-          </div>
-          <div>
-            <p>_____________________</p>
-            <p>Authorized Signature</p>
-          </div>
+      <div class="signature-section">
+        <div class="signature-box">
+          <div class="signature-line">Prepared By</div>
         </div>
-      </body>
-    </html>
+        <div class="signature-box">
+          <div class="signature-line">Authorized Signature</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
 `;
 
     printWindow.document.write(printContent);
